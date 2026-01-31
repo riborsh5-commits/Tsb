@@ -1,0 +1,59 @@
+-- Configuración Inicial
+local currentSpeed = 50
+local antiStunActive = true
+
+-- Crear Interfaz (Optimizado para Celular)
+local sg = Instance.new("ScreenGui", game.CoreGui)
+local frame = Instance.new("Frame", sg)
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0.5, -100, 0.1, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Active = true
+frame.Draggable = true -- Para moverlo con el dedo
+
+-- Mostrar Velocidad
+local label = Instance.new("TextLabel", frame)
+label.Size = UDim2.new(1, 0, 0.4, 0)
+label.Text = "Velocidad: " .. currentSpeed
+label.TextColor3 = Color3.new(1, 1, 1)
+label.BackgroundTransparency = 1
+label.TextSize = 18
+
+-- Botón Menos [-]
+local btnLess = Instance.new("TextButton", frame)
+btnLess.Size = UDim2.new(0.4, 0, 0.4, 0)
+btnLess.Position = UDim2.new(0.05, 0, 0.5, 0)
+btnLess.Text = "[-]"
+btnLess.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+btnLess.MouseButton1Click:Connect(function()
+    currentSpeed = math.max(16, currentSpeed - 10)
+    label.Text = "Velocidad: " .. currentSpeed
+end)
+
+-- Botón Más [+]
+local btnMore = Instance.new("TextButton", frame)
+btnMore.Size = UDim2.new(0.4, 0, 0.4, 0)
+btnMore.Position = UDim2.new(0.55, 0, 0.5, 0)
+btnMore.Text = "[+]"
+btnMore.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+btnMore.MouseButton1Click:Connect(function()
+    currentSpeed = currentSpeed + 10
+    label.Text = "Velocidad: " .. currentSpeed
+end)
+
+-- Bucle de Control (Anti-Stun e Imparable)
+game:GetService("RunService").RenderStepped:Connect(function()
+    local char = game.Players.LocalPlayer.Character
+    if char and char:FindFirstChild("Humanoid") then
+        local hum = char.Humanoid
+        hum.WalkSpeed = currentSpeed -- Fuerza la velocidad elegida
+        
+        -- Ignorar el aturdimiento de golpes
+        if antiStunActive then
+            local state = hum:GetState()
+            if state == Enum.HumanoidStateType.StrafingNoPhysics or state == Enum.HumanoidStateType.Ragdoll then
+                hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+            end
+        end
+    end
+end)
